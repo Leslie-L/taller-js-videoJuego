@@ -8,12 +8,18 @@ const bntDown = document.querySelector('#down')
 
 let canvasSize;
 let elementSize
+let level = 0;
+let lives = 3;
 
 const playerPosition = {
     x: undefined,
     y: undefined
 };
-
+const giftPosition = {
+    x:undefined,
+    y:undefined
+}
+let enemiesPositions = [];
 
 window.addEventListener('load',setCanvasSize);
 window.addEventListener('resize',setCanvasSize);
@@ -25,7 +31,13 @@ function startGame() {
     game.font = elementSize + 'px Verdana';
     game.textAlign = 'end';
     game.clearRect(0,0,canvasSize,canvasSize);
-    const map = maps[0];
+    enemiesPositions=[];
+    const map = maps[level];
+    if (!map) {
+        gameWin();
+        return;
+    }
+
     const mapRows = map.trim().split('\n');
     const mapRowCols = mapRows.map(row => row.trim().split(''));
     mapRowCols.forEach((row,rowI) => {
@@ -38,6 +50,14 @@ function startGame() {
                     playerPosition['x']=posx;
                     playerPosition['y']=posy;
                 }
+            }else if(col=='I'){
+                giftPosition.x=posx;
+                giftPosition.y=posy;
+            }else if (col=='X') {
+                enemiesPositions.push({
+                    x:posx,
+                    y:posy
+                })
             }
             game.fillText(emoji,posx,posy);
 
@@ -53,7 +73,45 @@ function startGame() {
     }*/
     
 }
+function levelWin() {
+    level++;
+    startGame();
+}
+function gameWin() {
+    console.log("Fin")
+}
+function levelFail() {
+    lives--;
+    if (lives <= 0) {
+        level=0;
+        lives=3;
+    }
+        
+    
+    playerPosition.x=undefined;
+    playerPosition.y=undefined; 
+    startGame();
+}
 function movePlayer() {
+    const giftColisionX= playerPosition.x.toFixed(3)==giftPosition.x.toFixed(3);
+    const giftColisionY = playerPosition.y.toFixed(3)==giftPosition.y.toFixed(3);
+    const giftColision = giftColisionX && giftColisionY;
+
+    if (giftColision) {
+        console.log("Win")
+        levelWin();
+    }
+    const enemyCollision = enemiesPositions.find(enemy=>{
+        const enemiColisionX = enemy.x.toFixed(3)== playerPosition.x.toFixed(3);
+        const enemiColisionY = enemy.y.toFixed(3)== playerPosition.y.toFixed(3);
+        return enemiColisionX && enemiColisionY;
+    });
+    if (enemyCollision) {
+        console.log("Morido");
+        levelFail();
+
+    }
+
     game.fillText(emojis['PLAYER'],playerPosition.x,playerPosition.y);
     
 }
