@@ -7,6 +7,9 @@ const bntRight = document.querySelector('#right');
 const bntDown = document.querySelector('#down')
 const spanLives =  document.querySelector('#lives');
 const spanTime =  document.querySelector('#time');
+const spanRecord =  document.querySelector('#record');
+const pResult = document.querySelector('#result');
+
 let canvasSize;
 let elementSize
 let level = 0;
@@ -46,6 +49,7 @@ function startGame() {
     if (!timeStart) {
         timeStart = Date.now();
         timeInterval = setInterval(showTime,100);
+        showRecord();
     }
     showLives();
     const mapRows = map.trim().split('\n');
@@ -90,7 +94,19 @@ function levelWin() {
 function gameWin() {
     console.log("Fin");
     clearInterval(timeInterval);
-
+    const recordTime = localStorage.getItem('record_time');
+    const playerTime= Date.now()-timeStart;
+    if (recordTime) {
+        if (recordTime>=playerTime) {
+            pResult.innerHTML= "Record superado";
+            localStorage.setItem('recird_time',playerTime);
+        }else{
+            pResult.innerHTML="Record no superado";
+        }
+    }else{
+        pResult.innerHTML="Nuevo Record";
+        localStorage.setItem('recird_time',playerTime);
+    }
 }
 function levelFail() {
     lives--;
@@ -115,6 +131,9 @@ function showLives() {
 function showTime() {
     spanTime.innerHTML = timeStart - Date.now();
 
+}
+function showRecord() {
+    spanRecord.innerHTML = localStorage.getItem('record_time');
 }
 function movePlayer() {
     const giftColisionX= playerPosition.x.toFixed(3)==giftPosition.x.toFixed(3);
